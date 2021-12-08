@@ -1,0 +1,4 @@
+nose
+bumpversion
+pep8
+pylint
