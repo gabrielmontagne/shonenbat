@@ -2,9 +2,29 @@
 Gabriel Montagné Láscaris-Comneno <gabriel@tibas.london>
 v0.0.1
 
-Create an `.env` file with, 
+A very thin wrapper on OpenAI's completion API (using its library).
+It will read the prompt from stdin and will return it along with the completions.
+Good for piping.
+
+----
+usage: shonenbat [-h] [--max_tokens MAX_TOKENS] [--num_options NUM_OPTIONS]
+                 [--temperature TEMPERATURE]
+                 [prompt]
+
+positional arguments:
+  prompt
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --max_tokens MAX_TOKENS, -mt MAX_TOKENS
+  --num_options NUM_OPTIONS, -n NUM_OPTIONS
+  --temperature TEMPERATURE, -t TEMPERATURE
+----
+
+To install, run `python setup.py`
+
+Create an `.env` file with,
 OPENAI_API_KEY=
 
 From here
 https://beta.openai.com/account/api-keys
-https://beta.openai.com/account/org-settings
