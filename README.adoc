@@ -1,3 +1,11 @@
 = shonenbat
 Gabriel Montagné Láscaris-Comneno <gabriel@tibas.london>
 v0.0.1
+
+Create an `.env` file with, 
+OPENAI_API_KEY=
+OPENAI_ORG_ID=
+
+From here
+https://beta.openai.com/account/api-keys
+https://beta.openai.com/account/org-settings
