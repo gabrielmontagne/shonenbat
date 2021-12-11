@@ -28,7 +28,7 @@ def main():
         n=args.num_options
     ).choices]
 
-    print('\n\n'.join(results))
+    print(f'\n\n{"▒" * 10}\n\n'.join(results))
 
 if __name__ == '__main__':
     main()
