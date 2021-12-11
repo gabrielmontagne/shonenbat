@@ -14,22 +14,21 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('prompt', nargs='?', type=FileType('r'), default=sys.stdin)
     parser.add_argument('--max_tokens', '-mt', type=int, default=50)
-    parser.add_argument('--num_options', '-n', type=int, default=2)
+    parser.add_argument('--num_options', '-n', type=int, default=3)
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
     args = parser.parse_args()
     prompt = args.prompt.read().strip()
 
-    print('max tokens', args.max_tokens)
+    results = [r.text for r in openai.Completion.create(
+        engine='davinci',
+        prompt=prompt,
+        max_tokens=args.max_tokens,
+        echo=True,
+        temperature=args.temperature,
+        n=args.num_options
+    ).choices]
 
-    print(
-        openai.Completion.create(
-            engine='davinci',
-            prompt=prompt,
-            max_tokens=args.max_tokens,
-            temperature=args.temperature,
-            n=args.num_options
-        )
-    )
+    print('\n\n'.join(results))
 
 if __name__ == '__main__':
     main()
