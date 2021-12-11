@@ -15,6 +15,7 @@ def main():
     parser.add_argument('prompt', nargs='?', type=FileType('r'), default=sys.stdin)
     parser.add_argument('--max_tokens', '-mt', type=int, default=50)
     parser.add_argument('--num_options', '-n', type=int, default=2)
+    parser.add_argument('--temperature', '-t', type=float, default=0.5)
     args = parser.parse_args()
     prompt = args.prompt.read().strip()
 
@@ -25,6 +26,7 @@ def main():
             engine='davinci',
             prompt=prompt,
             max_tokens=args.max_tokens,
+            temperature=args.temperature,
             n=args.num_options
         )
     )
