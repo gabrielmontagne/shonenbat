@@ -20,7 +20,7 @@ def main():
     prompt = args.prompt.read().strip()
 
     results = [r.text for r in openai.Completion.create(
-        engine='davinci',
+        engine='text-davinci-003',
         prompt=prompt,
         max_tokens=args.max_tokens,
         echo=True,
@@ -29,6 +29,14 @@ def main():
     ).choices]
 
     print(f'\n\n{"▒" * 10}\n\n'.join(results))
+
+def list():
+    """Run completion"""
+
+    load_dotenv()
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+    engines = openai.Engine.list()
+    print('list', engines)
 
 if __name__ == '__main__':
     main()

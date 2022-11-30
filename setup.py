@@ -8,7 +8,8 @@ setup(
     version='0.1.0',
     entry_points={
         'console_scripts': [
-            'shonenbat = shonenbat.__main__:main'
+            'shonenbat = shonenbat.__main__:main',
+            'shonenlist = shonenbat.__main__:list'
         ]
     }
 )
