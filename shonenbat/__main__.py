@@ -4,6 +4,7 @@ import sys
 import openai
 import os
 
+split_token = '{{insert}}'
 
 def main():
     """Run completion"""
@@ -12,16 +13,18 @@ def main():
     openai.api_key = os.getenv("OPENAI_API_KEY")
 
     parser = ArgumentParser()
-    parser.add_argument('prompt', nargs='?', type=FileType('r'), default=sys.stdin)
+    parser.add_argument('prompt', nargs='?', type=FileType('r'), default=sys.stdin, help='Optionally add {{insert}} for completion')
     parser.add_argument('--max_tokens', '-mt', type=int, default=3000)
     parser.add_argument('--num_options', '-n', type=int, default=3)
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
-    parser.add_argument('--suffix', '-s', type=str, default=None)
     parser.add_argument('--instruction', '-i', type=str, default=None)
     args = parser.parse_args()
     prompt = args.prompt.read().strip()
-    suffix = args.suffix
     instruction = args.instruction
+    suffix = None
+
+    if split_token in prompt:
+        prompt, suffix = prompt.split(split_token, maxsplit=1)
 
     if suffix:
         results = [f'{prompt}{r.text}{suffix}' for r in openai.Completion.create(
