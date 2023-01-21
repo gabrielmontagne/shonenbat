@@ -13,22 +13,48 @@ def main():
 
     parser = ArgumentParser()
     parser.add_argument('prompt', nargs='?', type=FileType('r'), default=sys.stdin)
-    parser.add_argument('--max_tokens', '-mt', type=int, default=50)
+    parser.add_argument('--max_tokens', '-mt', type=int, default=3000)
     parser.add_argument('--num_options', '-n', type=int, default=3)
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
+    parser.add_argument('--suffix', '-s', type=str, default=None)
+    parser.add_argument('--instruction', '-i', type=str, default=None)
     args = parser.parse_args()
     prompt = args.prompt.read().strip()
+    suffix = args.suffix
+    instruction = args.instruction
 
-    results = [r.text for r in openai.Completion.create(
-        engine='text-davinci-003',
-        prompt=prompt,
-        max_tokens=args.max_tokens,
-        echo=True,
-        temperature=args.temperature,
-        n=args.num_options
-    ).choices]
+    if suffix:
+        results = [f'{prompt}{r.text}{suffix}' for r in openai.Completion.create(
+            engine='text-davinci-003',
+            prompt=prompt,
+            max_tokens=args.max_tokens,
+            temperature=args.temperature,
+            n=args.num_options,
+            suffix=suffix
+        ).choices]
+        print(f'\n\n{"█" * 10}\n\n'.join(results))
+    elif instruction:
+        results = [f'{r.text}' for r in openai.Edit.create(
+            engine='text-davinci-edit-001',
+            input=prompt,
+            instruction=instruction,
+            temperature=args.temperature,
+            n=args.num_options,
+        ).choices]
+        print(f'\n\n{"×" * 10}\n\n'.join(results))
+        print(f'\n\n{"·" * 10}\n\n[{instruction}]')
 
-    print(f'\n\n{"▒" * 10}\n\n'.join(results))
+    else:
+        results = [f'{prompt}{r.text}' for r in openai.Completion.create(
+            engine='text-davinci-003',
+            prompt=prompt,
+            max_tokens=args.max_tokens,
+            # echo=True,
+            temperature=args.temperature,
+            n=args.num_options
+        ).choices]
+        print(f'\n\n{"▒" * 10}\n\n'.join(results))
+
 
 def list():
     """Run completion"""
