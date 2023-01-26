@@ -1,6 +1,6 @@
 = shonenbat
 Gabriel Montagné Láscaris-Comneno <gabriel@tibas.london>
-v0.1.0
+v0.2.0
 
 A very thin wrapper on OpenAI's completion API (using its library).
 It will read the prompt from stdin and will return it along with the completions.
