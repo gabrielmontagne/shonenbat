@@ -14,8 +14,8 @@ def main():
 
     parser = ArgumentParser()
     parser.add_argument('prompt', nargs='?', type=FileType('r'), default=sys.stdin, help='Optionally add {{insert}} for completion')
-    parser.add_argument('--max_tokens', '-mt', type=int, default=3000)
-    parser.add_argument('--num_options', '-n', type=int, default=3)
+    parser.add_argument('--max_tokens', '-mt', type=int, default=1000)
+    parser.add_argument('--num_options', '-n', type=int, default=1)
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
     parser.add_argument('--instruction', '-i', type=str, default=None)
     args = parser.parse_args()

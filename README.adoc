@@ -8,17 +8,18 @@ Good for piping.
 
 ----
 usage: shonenbat [-h] [--max_tokens MAX_TOKENS] [--num_options NUM_OPTIONS]
-                 [--temperature TEMPERATURE]
+                 [--temperature TEMPERATURE] [--instruction INSTRUCTION]
                  [prompt]
 
 positional arguments:
-  prompt
+  prompt                Optionally add {{insert}} for completion
 
 optional arguments:
   -h, --help            show this help message and exit
   --max_tokens MAX_TOKENS, -mt MAX_TOKENS
   --num_options NUM_OPTIONS, -n NUM_OPTIONS
   --temperature TEMPERATURE, -t TEMPERATURE
+  --instruction INSTRUCTION, -i INSTRUCTION
 ----
 
 To install, run `python setup.py`
