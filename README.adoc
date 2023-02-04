@@ -2,9 +2,7 @@
 Gabriel Montagné Láscaris-Comneno <gabriel@tibas.london>
 v0.2.0
 
-A very thin wrapper on OpenAI's completion API (using its library).
-It will read the prompt from stdin and will return it along with the completions.
-Good for piping.
+A thin wrapper on OpenAI's completion API (using its library). It reads the prompt from stdin and returns it along with the completions, making it suitable for piping.
 
 ----
 usage: shonenbat [-h] [--max_tokens MAX_TOKENS] [--num_options NUM_OPTIONS]
@@ -22,10 +20,9 @@ optional arguments:
   --instruction INSTRUCTION, -i INSTRUCTION
 ----
 
-To install, run `python setup.py`
+Installation (in developer mode, that allows updates):
+  `python setup.py develop`
 
-Create an `.env` file with,
-OPENAI_API_KEY=
+Create an `.env` file, on the same directory, with: `OPENAI_API_KEY=`
 
-From here
-https://beta.openai.com/account/api-keys
+Get a key from here: https://beta.openai.com/account/api-keys
