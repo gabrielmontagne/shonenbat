@@ -8,6 +8,7 @@ import subprocess
 
 split_token = '{{insert}}'
 
+
 def main():
     """Run completion"""
 
@@ -15,7 +16,8 @@ def main():
     openai.api_key = os.getenv("OPENAI_API_KEY")
 
     parser = ArgumentParser()
-    parser.add_argument('prompt', nargs='?', type=FileType('r'), default=sys.stdin, help='Optionally add {{insert}} for completion')
+    parser.add_argument('prompt', nargs='?', type=FileType(
+        'r'), default=sys.stdin, help='Optionally add {{insert}} for completion')
     parser.add_argument('--max_tokens', '-mt', type=int, default=1000)
     parser.add_argument('--num_options', '-n', type=int, default=1)
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
@@ -72,10 +74,12 @@ def image():
     openai.api_key = os.getenv("OPENAI_API_KEY")
 
     parser = ArgumentParser()
-    parser.add_argument('prompt', nargs='?', type=FileType('r'), default=sys.stdin, help='Image description')
+    parser.add_argument('prompt', nargs='?', type=FileType(
+        'r'), default=sys.stdin, help='Image description')
     parser.add_argument('--num_options', '-n', type=int, default=1)
     parser.add_argument('--size', '-s', type=str, default='1024x1024')
-    parser.add_argument('--command', '-c', type=str, help='Optional command to run for each generated URL')
+    parser.add_argument('--command', '-c', type=str,
+                        help='Optional command to run for each generated URL')
 
     args = parser.parse_args()
     prompt = args.prompt.read().strip()
@@ -97,8 +101,6 @@ def image():
     except Exception as e:
         traceback_details = traceback.format_exc()
         print('{{', traceback_details + '}}')
-    
-
 
 
 def list():
@@ -108,6 +110,7 @@ def list():
     openai.api_key = os.getenv("OPENAI_API_KEY")
     engines = openai.Engine.list()
     print('list', engines)
+
 
 if __name__ == '__main__':
     main()
