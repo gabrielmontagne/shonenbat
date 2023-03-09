@@ -4,6 +4,7 @@ import traceback
 import sys
 import openai
 import os
+import subprocess
 
 split_token = '{{insert}}'
 
@@ -88,6 +89,10 @@ def image():
 
         print(f'{prompt}\n\n')
         print(f'\n\n{"█" * 10}\n\n'.join(urls))
+
+        if args.command:
+            for url in urls:
+                subprocess.run([args.command, url])
 
     except Exception as e:
         traceback_details = traceback.format_exc()
