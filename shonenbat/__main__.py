@@ -70,6 +70,33 @@ def image():
     load_dotenv()
     openai.api_key = os.getenv("OPENAI_API_KEY")
 
+    parser = ArgumentParser()
+    parser.add_argument('prompt', nargs='?', type=FileType('r'), default=sys.stdin, help='Image description')
+    parser.add_argument('--num_options', '-n', type=int, default=1)
+    parser.add_argument('--size', '-s', type=str, default='512x512')
+    parser.add_argument('--command', '-c', type=str, default='feh')
+
+    args = parser.parse_args()
+    prompt = args.prompt.read().strip()
+
+    print('args', args, prompt)
+
+
+    try:
+        urls = [item['url'] for item in openai.Image.create(
+            prompt=prompt,
+            n=args.num_options,
+            size=args.size
+        )['data']]
+
+        print(urls)
+
+    except Exception as e:
+        traceback_details = traceback.format_exc()
+        print('{{', traceback_details + '}}')
+    
+
+
 
 def list():
     """Run completion"""
