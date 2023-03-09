@@ -74,7 +74,7 @@ def image():
     parser = ArgumentParser()
     parser.add_argument('prompt', nargs='?', type=FileType('r'), default=sys.stdin, help='Image description')
     parser.add_argument('--num_options', '-n', type=int, default=1)
-    parser.add_argument('--size', '-s', type=str, default='512x512')
+    parser.add_argument('--size', '-s', type=str, default='1024x1024')
     parser.add_argument('--command', '-c', type=str)
 
     args = parser.parse_args()
