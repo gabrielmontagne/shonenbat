@@ -20,6 +20,22 @@ optional arguments:
   --instruction INSTRUCTION, -i INSTRUCTION
 ----
 
+----
+usage: shonenimage [-h] [--num_options NUM_OPTIONS] [--size SIZE]
+                   [--command COMMAND]
+                   [prompt]
+
+positional arguments:
+  prompt                Image description
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --num_options NUM_OPTIONS, -n NUM_OPTIONS
+  --size SIZE, -s SIZE
+  --command COMMAND, -c COMMAND
+                        Optional command to run for each generated URL
+----
+
 Installation (in developer mode, that allows updates):
   `python setup.py develop`
 

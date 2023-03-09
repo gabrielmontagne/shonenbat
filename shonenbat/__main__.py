@@ -75,7 +75,7 @@ def image():
     parser.add_argument('prompt', nargs='?', type=FileType('r'), default=sys.stdin, help='Image description')
     parser.add_argument('--num_options', '-n', type=int, default=1)
     parser.add_argument('--size', '-s', type=str, default='1024x1024')
-    parser.add_argument('--command', '-c', type=str)
+    parser.add_argument('--command', '-c', type=str, help='Optional command to run for each generated URL')
 
     args = parser.parse_args()
     prompt = args.prompt.read().strip()
