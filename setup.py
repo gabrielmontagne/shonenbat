@@ -9,7 +9,8 @@ setup(
     entry_points={
         'console_scripts': [
             'shonenbat = shonenbat.__main__:main',
-            'shonenlist = shonenbat.__main__:list'
+            'shonenlist = shonenbat.__main__:list',
+            'shonenimage = shonenbat.__main__:image'
         ]
     }
 )

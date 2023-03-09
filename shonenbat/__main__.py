@@ -4,6 +4,7 @@ import traceback
 import sys
 import openai
 import os
+import subprocess
 
 split_token = '{{insert}}'
 
@@ -62,6 +63,41 @@ def main():
         except Exception as e:
             traceback_details = traceback.format_exc()
             print('{{', traceback_details + '}}')
+
+
+def image():
+    """Run image generation"""
+
+    load_dotenv()
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+
+    parser = ArgumentParser()
+    parser.add_argument('prompt', nargs='?', type=FileType('r'), default=sys.stdin, help='Image description')
+    parser.add_argument('--num_options', '-n', type=int, default=1)
+    parser.add_argument('--size', '-s', type=str, default='1024x1024')
+    parser.add_argument('--command', '-c', type=str, help='Optional command to run for each generated URL')
+
+    args = parser.parse_args()
+    prompt = args.prompt.read().strip()
+
+    try:
+        urls = [item['url'] for item in openai.Image.create(
+            prompt=prompt,
+            n=args.num_options,
+            size=args.size
+        )['data']]
+
+        print(f'{prompt}\n\n')
+        print(f'\n\n{"█" * 10}\n\n'.join(urls))
+
+        if args.command:
+            for url in urls:
+                subprocess.run([args.command, url])
+
+    except Exception as e:
+        traceback_details = traceback.format_exc()
+        print('{{', traceback_details + '}}')
+    
 
 
 
