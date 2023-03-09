@@ -74,13 +74,10 @@ def image():
     parser.add_argument('prompt', nargs='?', type=FileType('r'), default=sys.stdin, help='Image description')
     parser.add_argument('--num_options', '-n', type=int, default=1)
     parser.add_argument('--size', '-s', type=str, default='512x512')
-    parser.add_argument('--command', '-c', type=str, default='feh')
+    parser.add_argument('--command', '-c', type=str)
 
     args = parser.parse_args()
     prompt = args.prompt.read().strip()
-
-    print('args', args, prompt)
-
 
     try:
         urls = [item['url'] for item in openai.Image.create(
@@ -89,7 +86,8 @@ def image():
             size=args.size
         )['data']]
 
-        print(urls)
+        print(f'{prompt}\n\n')
+        print(f'\n\n{"█" * 10}\n\n'.join(urls))
 
     except Exception as e:
         traceback_details = traceback.format_exc()
