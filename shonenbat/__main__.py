@@ -55,7 +55,7 @@ def main():
     else:
         try:
             results = [f'{prompt}{r.text}' for r in openai.Completion.create(
-                engine='text-davinci-003',
+                engine=args.model,
                 prompt=prompt,
                 max_tokens=args.max_tokens,
                 temperature=args.temperature,
