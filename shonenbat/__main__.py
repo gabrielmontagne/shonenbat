@@ -103,6 +103,9 @@ def image():
         print('{{', traceback_details + '}}')
 
 
+def chat():
+    print('running chat')
+
 def list():
     """Run completion"""
 

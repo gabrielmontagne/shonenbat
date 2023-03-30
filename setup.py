@@ -10,7 +10,8 @@ setup(
         'console_scripts': [
             'shonenbat = shonenbat.__main__:main',
             'shonenlist = shonenbat.__main__:list',
-            'shonenimage = shonenbat.__main__:image'
+            'shonenimage = shonenbat.__main__:image',
+            'shonenchat = shonenbat.__main__:chat'
         ]
     }
 )
