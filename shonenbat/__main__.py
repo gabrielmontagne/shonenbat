@@ -141,7 +141,7 @@ def chat():
 
     parser = ArgumentParser()
     parser.add_argument('prompt', nargs='?', type=FileType(
-        'r'), default=sys.stdin, help='Optionally add {{insert}} for completion')
+        'r'), default=sys.stdin, help='An optional preamble with context for the agent, then block sections headed by Q>> and A>>. ')
     parser.add_argument('--num_options', '-n', type=int, default=1)
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
     parser.add_argument('--model', '-m', type=str, default='gpt-3.5-turbo')
