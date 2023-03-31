@@ -5,15 +5,52 @@ import sys
 import openai
 import os
 import subprocess
+import re
 
 split_token = '{{insert}}'
+
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+def messages_from_prompt(prompt):
+    token = r'(?:^|\n)(\w>>)'
+    preamble, *pairs = re.split(token, prompt)
+    qa = [pair for pair in (zip(pairs[::2], pairs[1::2])) if pair[1]]
+
+    preamble = preamble.strip()
+
+    messages = []
+
+    if preamble:
+        messages.append(
+            {
+                'role': 'system', 
+                'content': preamble
+            }
+        )
+
+    for k, v in qa:
+        if k == 'Q>>':
+            messages.append(
+                {
+                    'role': 'user', 
+                    'content': v.strip()
+                }
+            )
+
+        if k == 'A>>':
+            messages.append(
+                {
+                    'role': 'assistant', 
+                    'content': v.strip()
+                }
+            )
+
+    return messages
 
 
 def main():
     """Run completion"""
-
-    load_dotenv()
-    openai.api_key = os.getenv("OPENAI_API_KEY")
 
     parser = ArgumentParser()
     parser.add_argument('prompt', nargs='?', type=FileType(
@@ -70,9 +107,6 @@ def main():
 def image():
     """Run image generation"""
 
-    load_dotenv()
-    openai.api_key = os.getenv("OPENAI_API_KEY")
-
     parser = ArgumentParser()
     parser.add_argument('prompt', nargs='?', type=FileType(
         'r'), default=sys.stdin, help='Image description')
@@ -103,11 +137,38 @@ def image():
         print('{{', traceback_details + '}}')
 
 
+def chat():
+
+    parser = ArgumentParser()
+    parser.add_argument('prompt', nargs='?', type=FileType(
+        'r'), default=sys.stdin, help='An optional preamble with context for the agent, then block sections headed by Q>> and A>>. ')
+    parser.add_argument('--num_options', '-n', type=int, default=1)
+    parser.add_argument('--temperature', '-t', type=float, default=0.5)
+    parser.add_argument('--model', '-m', type=str, default='gpt-3.5-turbo')
+    args = parser.parse_args()
+    prompt = args.prompt.read()
+
+    try:
+        results = [f'A>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
+            model=args.model,
+            messages=messages_from_prompt(prompt), 
+            n=args.num_options,
+            temperature=args.temperature,
+
+        ).choices]
+
+        print(prompt)
+        print(f'\n\n{"█" * 10}\n\n'.join(results))
+        print('\n\nQ>> ')
+
+    except Exception as e:
+        traceback_details = traceback.format_exc()
+        print('{{', traceback_details + '}}')
+
+
 def list():
     """Run completion"""
 
-    load_dotenv()
-    openai.api_key = os.getenv("OPENAI_API_KEY")
     engines = openai.Engine.list()
     print('list', engines)
 

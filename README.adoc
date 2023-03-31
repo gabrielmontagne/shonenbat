@@ -36,9 +36,28 @@ optional arguments:
                         Optional command to run for each generated URL
 ----
 
+
+----
+usage: shonenchat [-h] [--num_options NUM_OPTIONS] [--temperature TEMPERATURE]
+                  [--model MODEL]
+                  [prompt]
+
+positional arguments:
+  prompt                An optional preamble with context for the agent, then
+                        block sections headed by Q>> and A>>.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --num_options NUM_OPTIONS, -n NUM_OPTIONS
+  --temperature TEMPERATURE, -t TEMPERATURE
+  --model MODEL, -m MODEL
+----
+
 Installation (in developer mode, that allows updates):
   `python setup.py develop`
 
 Create an `.env` file, on the same directory, with: `OPENAI_API_KEY=`
 
 Get a key from here: https://beta.openai.com/account/api-keys
+
+
