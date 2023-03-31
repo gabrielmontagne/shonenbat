@@ -5,8 +5,46 @@ import sys
 import openai
 import os
 import subprocess
+import re
 
 split_token = '{{insert}}'
+
+def chat_from_prompt(prompt):
+    token = r'(?:^|\n)(\w>>)'
+    preamble, *pairs = re.split(token, prompt)
+    qa = [pair for pair in (zip(pairs[::2], pairs[1::2])) if pair[1]]
+
+    preamble = preamble.strip()
+
+    messages = []
+
+    if preamble:
+        messages.append(
+            {
+                'role': 'system', 
+                'content': preamble
+            }
+        )
+
+    for k, v in qa:
+        print(k, v.strip())
+        if k == 'Q>>':
+            messages.append(
+                {
+                    'role': 'user', 
+                    'content': v.strip()
+                }
+            )
+
+        if k == 'A>>':
+            messages.append(
+                {
+                    'role': 'assistant', 
+                    'content': v.strip()
+                }
+            )
+
+    return messages
 
 
 def main():
@@ -104,8 +142,6 @@ def image():
 
 
 def chat():
-    print('running chat')
-
     parser = ArgumentParser()
     parser.add_argument('prompt', nargs='?', type=FileType(
         'r'), default=sys.stdin, help='Optionally add {{insert}} for completion')
@@ -116,7 +152,7 @@ def chat():
     args = parser.parse_args()
     prompt = args.prompt.read().strip()
 
-    print('P', prompt)
+    print(chat_from_prompt(prompt))
 
 def list():
     """Run completion"""
