@@ -30,7 +30,6 @@ def messages_from_prompt(prompt):
         )
 
     for k, v in qa:
-        print(k, v.strip())
         if k == 'Q>>':
             messages.append(
                 {
@@ -143,20 +142,24 @@ def chat():
     parser = ArgumentParser()
     parser.add_argument('prompt', nargs='?', type=FileType(
         'r'), default=sys.stdin, help='Optionally add {{insert}} for completion')
-    parser.add_argument('--max_tokens', '-mt', type=int, default=1000)
     parser.add_argument('--num_options', '-n', type=int, default=1)
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
     parser.add_argument('--model', '-m', type=str, default='gpt-3.5-turbo')
     args = parser.parse_args()
-    prompt = args.prompt.read().strip()
+    prompt = args.prompt.read()
 
     try:
-        results = [f'{r.message.content}' for r in openai.ChatCompletion.create(
+        results = [f'A>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
             model=args.model,
-            messages=messages_from_prompt(prompt)
+            messages=messages_from_prompt(prompt), 
+            n=args.num_options,
+            temperature=args.temperature,
+
         ).choices]
 
-        print(results)
+        print(prompt)
+        print(f'\n\n{"█" * 10}\n\n'.join(results))
+        print('\n\nQ>> ')
 
     except Exception as e:
         traceback_details = traceback.format_exc()
