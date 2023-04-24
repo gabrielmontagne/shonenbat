@@ -60,7 +60,12 @@ def main():
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
     parser.add_argument('--model', '-m', type=str, default='text-davinci-003')
     parser.add_argument('--instruction', '-i', type=str, default=None)
+    parser.add_argument('--stop', nargs='*')
+
     args = parser.parse_args()
+
+    unescaped_stops = [i.replace('\\n', '\n') for i in args.stop or []]
+
     prompt = args.prompt.read().strip()
     instruction = args.instruction
     suffix = None
@@ -75,6 +80,7 @@ def main():
             max_tokens=args.max_tokens,
             temperature=args.temperature,
             n=args.num_options,
+            stop=unescaped_stops or None,
             suffix=suffix
         ).choices]
         print(f'\n\n{"█" * 10}\n\n'.join(results))
@@ -85,6 +91,7 @@ def main():
             instruction=instruction,
             temperature=args.temperature,
             n=args.num_options,
+            stop=unescaped_stops or None,
         ).choices]
         print(f'\n\n{"×" * 10}\n\n'.join(results))
         print(f'\n\n{"·" * 10}\n\n[{instruction}]')
@@ -96,7 +103,8 @@ def main():
                 prompt=prompt,
                 max_tokens=args.max_tokens,
                 temperature=args.temperature,
-                n=args.num_options
+                n=args.num_options,
+                stop=unescaped_stops or None,
             ).choices]
             print(f'\n\n{"█" * 10}\n\n'.join(results))
         except Exception as e:
