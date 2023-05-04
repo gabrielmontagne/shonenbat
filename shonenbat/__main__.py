@@ -12,6 +12,13 @@ split_token = '{{insert}}'
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+token_to_role = {
+    'Q>>': 'user',
+    'A>>': 'assistant',
+    'S>>': 'system'
+}
+
+
 def messages_from_prompt(prompt):
     token = r'(?:^|\n)(\w>>)'
     preamble, *pairs = re.split(token, prompt)
@@ -24,27 +31,18 @@ def messages_from_prompt(prompt):
     if preamble:
         messages.append(
             {
-                'role': 'system', 
+                'role': 'system',
                 'content': preamble
             }
         )
 
     for k, v in qa:
-        if k == 'Q>>':
-            messages.append(
-                {
-                    'role': 'user', 
-                    'content': v.strip()
-                }
-            )
-
-        if k == 'A>>':
-            messages.append(
-                {
-                    'role': 'assistant', 
-                    'content': v.strip()
-                }
-            )
+        messages.append(
+            {
+                'role': token_to_role.get(k, 'S>>'),
+                'content': v.strip()
+            }
+        )
 
     return messages
 
@@ -159,7 +157,7 @@ def chat():
     try:
         results = [f'A>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
             model=args.model,
-            messages=messages_from_prompt(prompt), 
+            messages=messages_from_prompt(prompt),
             n=args.num_options,
             temperature=args.temperature,
 
