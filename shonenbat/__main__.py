@@ -81,7 +81,7 @@ def main():
             stop=unescaped_stops or None,
             suffix=suffix
         ).choices]
-        print(f'\n\n{"█" * 10}\n\n'.join(results))
+        print(f'\n\n{"=" * 10}\n\n'.join(results))
     elif instruction:
         results = [f'{r.text}' for r in openai.Edit.create(
             engine='text-davinci-edit-001',
@@ -91,8 +91,8 @@ def main():
             n=args.num_options,
             stop=unescaped_stops or None,
         ).choices]
-        print(f'\n\n{"×" * 10}\n\n'.join(results))
-        print(f'\n\n{"·" * 10}\n\n[{instruction}]')
+        print(f'\n\n{"-" * 10}\n\n'.join(results))
+        print(f'\n\n{"-" * 10}\n\n[{instruction}]')
 
     else:
         try:
@@ -104,7 +104,7 @@ def main():
                 n=args.num_options,
                 stop=unescaped_stops or None,
             ).choices]
-            print(f'\n\n{"█" * 10}\n\n'.join(results))
+            print(f'\n\n{"_" * 10}\n\n'.join(results))
         except Exception as e:
             traceback_details = traceback.format_exc()
             print('{{', traceback_details + '}}')
@@ -164,7 +164,7 @@ def chat():
         ).choices]
 
         print(prompt)
-        print(f'\n\n{"█" * 10}\n\n'.join(results))
+        print(f'\n\n{"-" * 10}\n\n'.join(results))
         print('\n\nQ>> ')
 
     except Exception as e:
