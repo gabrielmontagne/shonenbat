@@ -34,7 +34,7 @@ def focus_prompt(prompt):
         prompt, separator, tail = end_split
         post = separator + tail
 
-    return prompt, pre, post
+    return prompt.strip(), pre, post
 
 
 def messages_from_prompt(prompt):
@@ -83,8 +83,6 @@ def main():
     unescaped_stops = [i.replace('\\n', '\n') for i in args.stop or []]
 
     prompt, pre, post = focus_prompt(args.prompt.read())
-
-    prompt = prompt.strip()
 
     print(pre)
 
@@ -149,7 +147,6 @@ def image():
     args = parser.parse_args()
 
     prompt, pre, post = focus_prompt(args.prompt.read())
-    prompt = prompt.strip()
 
     print(pre)
 
@@ -187,7 +184,7 @@ def chat():
     print(pre)
 
     try:
-        results = [f'A>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
+        results = [f'\nA>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
             model=args.model,
             messages=messages_from_prompt(prompt),
             n=args.num_options,
