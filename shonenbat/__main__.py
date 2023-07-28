@@ -84,7 +84,8 @@ def main():
 
     prompt, pre, post = focus_prompt(args.prompt.read())
 
-    print(pre)
+    if pre:
+        print(pre)
 
     instruction = args.instruction
     suffix = None
@@ -130,7 +131,8 @@ def main():
             traceback_details = traceback.format_exc()
             print('{{', traceback_details + '}}')
 
-    print(post)
+    if post:
+        print(post)
 
 
 def image():
@@ -148,7 +150,8 @@ def image():
 
     prompt, pre, post = focus_prompt(args.prompt.read())
 
-    print(pre)
+    if pre:
+        print(pre)
 
     try:
         urls = [item['url'] for item in openai.Image.create(
@@ -168,7 +171,8 @@ def image():
         traceback_details = traceback.format_exc()
         print('{{', traceback_details + '}}')
 
-    print(post)
+    if post:
+        print(post)
 
 def chat():
 
@@ -181,7 +185,8 @@ def chat():
     args = parser.parse_args()
     prompt, pre, post = focus_prompt(args.prompt.read())
 
-    print(pre)
+    if pre:
+        print(pre)
 
     try:
         results = [f'\nA>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
@@ -194,13 +199,14 @@ def chat():
 
         print(prompt)
         print(f'\n\n{"█" * 10}\n\n'.join(results))
-        print('\n\nQ>> ')
+        print('\nQ>> ')
 
     except Exception as e:
         traceback_details = traceback.format_exc()
         print('{{', traceback_details + '}}')
 
-    print(post)
+    if post:
+        print(post)
 
 
 def list():
