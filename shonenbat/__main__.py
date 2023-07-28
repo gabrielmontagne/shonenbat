@@ -18,6 +18,24 @@ token_to_role = {
     'S>>': 'system'
 }
 
+def focus_prompt(prompt):
+    pre = ""
+    post = ""
+
+    start_split = re.split(r'^(\s*__START__\s*)$', prompt, flags=re.MULTILINE)
+
+    if len(start_split) == 3:
+        head, separator, prompt = start_split
+        pre = head + separator
+
+    end_split = re.split(r'^(\s*__END__\s*)$', prompt, flags=re.MULTILINE)
+
+    if len(end_split) == 3:
+        prompt, separator, tail = end_split
+        post = separator + tail
+
+    return prompt, pre, post
+
 
 def messages_from_prompt(prompt):
     token = r'(?:^|\n)(\w>>)'
@@ -64,7 +82,12 @@ def main():
 
     unescaped_stops = [i.replace('\\n', '\n') for i in args.stop or []]
 
-    prompt = args.prompt.read().strip()
+    prompt, pre, post = focus_prompt(args.prompt.read())
+
+    prompt = prompt.strip()
+
+    print(pre)
+
     instruction = args.instruction
     suffix = None
 
@@ -109,6 +132,8 @@ def main():
             traceback_details = traceback.format_exc()
             print('{{', traceback_details + '}}')
 
+    print(post)
+
 
 def image():
     """Run image generation"""
@@ -122,7 +147,11 @@ def image():
                         help='Optional command to run for each generated URL')
 
     args = parser.parse_args()
-    prompt = args.prompt.read().strip()
+
+    prompt, pre, post = focus_prompt(args.prompt.read())
+    prompt = prompt.strip()
+
+    print(pre)
 
     try:
         urls = [item['url'] for item in openai.Image.create(
@@ -142,6 +171,7 @@ def image():
         traceback_details = traceback.format_exc()
         print('{{', traceback_details + '}}')
 
+    print(post)
 
 def chat():
 
@@ -152,7 +182,9 @@ def chat():
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
     parser.add_argument('--model', '-m', type=str, default='gpt-3.5-turbo')
     args = parser.parse_args()
-    prompt = args.prompt.read()
+    prompt, pre, post = focus_prompt(args.prompt.read())
+
+    print(pre)
 
     try:
         results = [f'A>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
@@ -170,6 +202,8 @@ def chat():
     except Exception as e:
         traceback_details = traceback.format_exc()
         print('{{', traceback_details + '}}')
+
+    print(post)
 
 
 def list():
