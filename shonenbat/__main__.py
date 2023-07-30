@@ -1,5 +1,5 @@
 from argparse import ArgumentParser, FileType
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import traceback
 import sys
 import openai
@@ -10,6 +10,7 @@ import re
 split_token = '{{insert}}'
 
 load_dotenv()
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 token_to_role = {
@@ -63,6 +64,9 @@ def messages_from_prompt(prompt):
         )
 
     return messages
+
+def run_completion():
+    print('completion')
 
 
 def main():
@@ -183,17 +187,26 @@ def chat():
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
     parser.add_argument('--model', '-m', type=str, default='gpt-3.5-turbo')
     args = parser.parse_args()
-    prompt, pre, post = focus_prompt(args.prompt.read())
+    model = args.model
+    num_options = args.num_options
+    temperature = args.temperature
+    full_prompt = args.prompt.read()
+
+    run_chat(model, num_options, temperature, full_prompt)
+
+def run_chat(model, num_options, temperature, full_prompt):
+
+    prompt, pre, post = focus_prompt(full_prompt)
 
     if pre:
         print(pre)
 
     try:
         results = [f'\nA>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
-            model=args.model,
+            model=model,
             messages=messages_from_prompt(prompt),
-            n=args.num_options,
-            temperature=args.temperature,
+            n=num_options,
+            temperature=temperature,
 
         ).choices]
 
