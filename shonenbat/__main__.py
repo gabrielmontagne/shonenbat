@@ -88,7 +88,7 @@ def run_completion(model, num_options, temperature, full_prompt, max_tokens=1000
             stop=unescaped_stops or None,
             suffix=suffix
         ).choices]
-        print(f'\n\n{"█" * 10}\n\n'.join(results))
+        print(f'\n\n{"=" * 10}\n\n'.join(results))
     elif instruction:
         results = [f'{r.text}' for r in openai.Edit.create(
             engine='text-davinci-edit-001',
@@ -111,7 +111,7 @@ def run_completion(model, num_options, temperature, full_prompt, max_tokens=1000
                 n=num_options,
                 stop=unescaped_stops or None,
             ).choices]
-            print(f'\n\n{"█" * 10}\n\n'.join(results))
+            print(f'\n\n{"_" * 10}\n\n'.join(results))
         except Exception as e:
             traceback_details = traceback.format_exc()
             print('{{', traceback_details + '}}')
@@ -171,7 +171,7 @@ def image():
         )['data']]
 
         print(f'{prompt}\n\n')
-        print(f'\n\n{"█" * 10}\n\n'.join(urls))
+        print(f'\n\n{"-" * 10}\n\n'.join(urls))
 
         if args.command:
             for url in urls:
@@ -217,7 +217,7 @@ def run_chat(model, num_options, temperature, full_prompt):
         ).choices]
 
         print(prompt)
-        print(f'\n\n{"█" * 10}\n\n'.join(results))
+        print(f'\n\n{"-" * 10}\n\n'.join(results))
         print('\nQ>> ')
 
     except Exception as e:
