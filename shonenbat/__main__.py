@@ -131,7 +131,7 @@ def main():
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
     parser.add_argument('--model', '-m', type=str, default='text-davinci-003')
     parser.add_argument('--instruction', '-i', type=str, default=None)
-    parser.add_argument('--stop', nargs='*')
+    parser.add_argument('--stop', nargs='*', default=[])
 
     args = parser.parse_args()
     stop = args.stop
