@@ -118,7 +118,7 @@ def run_completion(model, num_options, temperature, full_prompt, max_tokens=1000
             completion += f'\n\n{"_" * 10}\n\n'.join(results)
         except Exception as e:
             traceback_details = traceback.format_exc()
-            completion += '{{', traceback_details + '}}'
+            completion += '{{' + traceback_details + '}}'
 
     if post:
         completion += post
