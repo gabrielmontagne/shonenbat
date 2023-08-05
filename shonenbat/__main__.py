@@ -72,10 +72,10 @@ def run_completion(model, num_options, temperature, full_prompt, max_tokens=1000
 
     prompt, pre, post = focus_prompt(full_prompt)
 
-    reply = ''
+    completion = ''
 
     if pre:
-        reply += pre
+        completion += pre
 
     suffix = None
 
@@ -92,7 +92,7 @@ def run_completion(model, num_options, temperature, full_prompt, max_tokens=1000
             stop=unescaped_stops or None,
             suffix=suffix
         ).choices]
-        reply += f'\n\n{"=" * 10}\n\n'.join(results)
+        completion += f'\n\n{"=" * 10}\n\n'.join(results)
     elif instruction:
         results = [f'{r.text}' for r in openai.Edit.create(
             engine='text-davinci-edit-001',
@@ -123,8 +123,7 @@ def run_completion(model, num_options, temperature, full_prompt, max_tokens=1000
     if post:
         completion += post
 
-    return completion 
-
+    return completion
 
 
 def main():
@@ -150,9 +149,10 @@ def main():
     num_options = args.num_options
 
     completion = run_completion(model, num_options, temperature,
-                   full_prompt, max_tokens, instruction, stop)
+                                full_prompt, max_tokens, instruction, stop)
 
     print(completion)
+
 
 def image():
     """Run image generation"""
@@ -208,15 +208,18 @@ def chat():
     temperature = args.temperature
     full_prompt = args.prompt.read()
 
-    run_chat(model, num_options, temperature, full_prompt)
+    chat = run_chat(model, num_options, temperature, full_prompt)
+    print(chat)
 
 
 def run_chat(model, num_options, temperature, full_prompt):
 
     prompt, pre, post = focus_prompt(full_prompt)
 
+    chat = ''
+
     if pre:
-        print(pre)
+        chat += pre
 
     try:
         results = [f'\nA>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
@@ -227,16 +230,18 @@ def run_chat(model, num_options, temperature, full_prompt):
 
         ).choices]
 
-        print(prompt)
-        print(f'\n\n{"-" * 10}\n\n'.join(results))
-        print('\nQ>> ')
+        chat += prompt
+        chat += f'\n\n{"-" * 10}\n\n'.join(results)
+        chat += '\nQ>> '
 
     except Exception as e:
         traceback_details = traceback.format_exc()
-        print('{{', traceback_details + '}}')
+        chat += '{{', traceback_details + '}}'
 
     if post:
-        print(post)
+        chat += post
+
+    return chat
 
 
 def list():
