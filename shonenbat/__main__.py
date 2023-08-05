@@ -75,7 +75,7 @@ def run_completion(model, num_options, temperature, full_prompt, max_tokens=1000
     completion = ''
 
     if pre:
-        completion += pre
+        completion += pre + '\n'
 
     suffix = None
 
@@ -121,7 +121,7 @@ def run_completion(model, num_options, temperature, full_prompt, max_tokens=1000
             completion += '{{' + traceback_details + '}}'
 
     if post:
-        completion += post
+        completion += '\n' + post
 
     return completion
 
@@ -219,7 +219,7 @@ def run_chat(model, num_options, temperature, full_prompt):
     chat = ''
 
     if pre:
-        chat += pre
+        chat += pre + '\n'
 
     try:
         results = [f'\n\nA>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
@@ -239,7 +239,7 @@ def run_chat(model, num_options, temperature, full_prompt):
         chat += '{{', traceback_details + '}}'
 
     if post:
-        chat += post
+        chat += '\n' + post
 
     return chat
 
