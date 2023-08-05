@@ -1,5 +1,5 @@
 from argparse import ArgumentParser, FileType
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv
 import traceback
 import sys
 import openai
