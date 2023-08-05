@@ -19,6 +19,7 @@ token_to_role = {
     'S>>': 'system'
 }
 
+
 def focus_prompt(prompt):
     pre = ""
     post = ""
@@ -64,6 +65,7 @@ def messages_from_prompt(prompt):
         )
 
     return messages
+
 
 def run_completion(model, num_options, temperature, full_prompt, max_tokens=1000, instruction=None, stop=[]):
     unescaped_stops = [i.replace('\\n', '\n') for i in stop]
@@ -142,7 +144,8 @@ def main():
     temperature = args.temperature
     num_options = args.num_options
 
-    run_completion(model, num_options, temperature, full_prompt, max_tokens, instruction, stop)
+    run_completion(model, num_options, temperature,
+                   full_prompt, max_tokens, instruction, stop)
 
 
 def image():
@@ -184,6 +187,7 @@ def image():
     if post:
         print(post)
 
+
 def chat():
 
     parser = ArgumentParser()
@@ -199,6 +203,7 @@ def chat():
     full_prompt = args.prompt.read()
 
     run_chat(model, num_options, temperature, full_prompt)
+
 
 def run_chat(model, num_options, temperature, full_prompt):
 
