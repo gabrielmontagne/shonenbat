@@ -19,6 +19,7 @@ token_to_role = {
     'S>>': 'system'
 }
 
+
 def focus_prompt(prompt):
     pre = ""
     post = ""
@@ -65,13 +66,16 @@ def messages_from_prompt(prompt):
 
     return messages
 
+
 def run_completion(model, num_options, temperature, full_prompt, max_tokens=1000, instruction=None, stop=[]):
     unescaped_stops = [i.replace('\\n', '\n') for i in stop]
 
     prompt, pre, post = focus_prompt(full_prompt)
 
+    completion = ''
+
     if pre:
-        print(pre)
+        completion += pre
 
     suffix = None
 
@@ -88,7 +92,7 @@ def run_completion(model, num_options, temperature, full_prompt, max_tokens=1000
             stop=unescaped_stops or None,
             suffix=suffix
         ).choices]
-        print(f'\n\n{"=" * 10}\n\n'.join(results))
+        completion += f'\n\n{"=" * 10}\n\n'.join(results)
     elif instruction:
         results = [f'{r.text}' for r in openai.Edit.create(
             engine='text-davinci-edit-001',
@@ -98,8 +102,8 @@ def run_completion(model, num_options, temperature, full_prompt, max_tokens=1000
             n=num_options,
             stop=unescaped_stops or None,
         ).choices]
-        print(f'\n\n{"×" * 10}\n\n'.join(results))
-        print(f'\n\n{"·" * 10}\n\n[{instruction}]')
+        completion += f'\n\n{"×" * 10}\n\n'.join(results)
+        completion += f'\n\n{"·" * 10}\n\n[{instruction}]'
 
     else:
         try:
@@ -111,13 +115,15 @@ def run_completion(model, num_options, temperature, full_prompt, max_tokens=1000
                 n=num_options,
                 stop=unescaped_stops or None,
             ).choices]
-            print(f'\n\n{"_" * 10}\n\n'.join(results))
+            completion += f'\n\n{"_" * 10}\n\n'.join(results)
         except Exception as e:
             traceback_details = traceback.format_exc()
-            print('{{', traceback_details + '}}')
+            completion += '{{', traceback_details + '}}'
 
     if post:
-        print(post)
+        completion += post
+
+    return completion
 
 
 def main():
@@ -142,7 +148,10 @@ def main():
     temperature = args.temperature
     num_options = args.num_options
 
-    run_completion(model, num_options, temperature, full_prompt, max_tokens, instruction, stop)
+    completion = run_completion(model, num_options, temperature,
+                                full_prompt, max_tokens, instruction, stop)
+
+    print(completion)
 
 
 def image():
@@ -184,6 +193,7 @@ def image():
     if post:
         print(post)
 
+
 def chat():
 
     parser = ArgumentParser()
@@ -198,14 +208,18 @@ def chat():
     temperature = args.temperature
     full_prompt = args.prompt.read()
 
-    run_chat(model, num_options, temperature, full_prompt)
+    chat = run_chat(model, num_options, temperature, full_prompt)
+    print(chat)
+
 
 def run_chat(model, num_options, temperature, full_prompt):
 
     prompt, pre, post = focus_prompt(full_prompt)
 
+    chat = ''
+
     if pre:
-        print(pre)
+        chat += pre
 
     try:
         results = [f'\nA>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
@@ -216,16 +230,18 @@ def run_chat(model, num_options, temperature, full_prompt):
 
         ).choices]
 
-        print(prompt)
-        print(f'\n\n{"-" * 10}\n\n'.join(results))
-        print('\nQ>> ')
+        chat += prompt
+        chat += f'\n\n{"-" * 10}\n\n'.join(results)
+        chat += '\nQ>> '
 
     except Exception as e:
         traceback_details = traceback.format_exc()
-        print('{{', traceback_details + '}}')
+        chat += '{{', traceback_details + '}}'
 
     if post:
-        print(post)
+        chat += post
+
+    return chat
 
 
 def list():
