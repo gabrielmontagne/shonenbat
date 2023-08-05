@@ -222,7 +222,7 @@ def run_chat(model, num_options, temperature, full_prompt):
         chat += pre
 
     try:
-        results = [f'\nA>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
+        results = [f'\n\nA>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
             model=model,
             messages=messages_from_prompt(prompt),
             n=num_options,
@@ -232,7 +232,7 @@ def run_chat(model, num_options, temperature, full_prompt):
 
         chat += prompt
         chat += f'\n\n{"-" * 10}\n\n'.join(results)
-        chat += '\nQ>> '
+        chat += '\n\nQ>> '
 
     except Exception as e:
         traceback_details = traceback.format_exc()
