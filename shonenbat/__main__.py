@@ -203,6 +203,8 @@ def chat():
     parser.add_argument('--max_tokens', '-mt', type=int, default=1000)
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
     parser.add_argument('--model', '-m', type=str, default='gpt-3.5-turbo')
+    parser.add_argument('--offline_preamble', '-op',
+                        type=FileType('r'), default=None)
     args = parser.parse_args()
     model = args.model
     num_options = args.num_options
@@ -210,11 +212,15 @@ def chat():
     full_prompt = args.prompt.read()
     max_tokens = args.max_tokens
 
-    chat = run_chat(model, num_options, temperature, full_prompt, max_tokens)
+    offline_preamble = ''
+    if args.offline_preamble:
+        offline_preamble = args.offline_preamble.read()
+
+    chat = run_chat(model, num_options, temperature, full_prompt, max_tokens, offline_preamble)
     print(chat)
 
 
-def run_chat(model, num_options, temperature, full_prompt, max_tokens=1000):
+def run_chat(model, num_options, temperature, full_prompt, max_tokens=1000, offline_preamble=''):
 
     prompt, pre, post = focus_prompt(full_prompt)
 
@@ -226,7 +232,7 @@ def run_chat(model, num_options, temperature, full_prompt, max_tokens=1000):
     try:
         results = [f'\n\nA>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
             model=model,
-            messages=messages_from_prompt(prompt),
+            messages=messages_from_prompt(offline_preamble + '\n' + prompt),
             n=num_options,
             temperature=temperature,
             max_tokens=max_tokens
