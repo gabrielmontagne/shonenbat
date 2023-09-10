@@ -200,6 +200,7 @@ def chat():
     parser.add_argument('prompt', nargs='?', type=FileType(
         'r'), default=sys.stdin, help='An optional preamble with context for the agent, then block sections headed by Q>> and A>>. ')
     parser.add_argument('--num_options', '-n', type=int, default=1)
+    parser.add_argument('--max_tokens', '-mt', type=int, default=1000)
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
     parser.add_argument('--model', '-m', type=str, default='gpt-3.5-turbo')
     args = parser.parse_args()
@@ -207,12 +208,13 @@ def chat():
     num_options = args.num_options
     temperature = args.temperature
     full_prompt = args.prompt.read()
+    max_tokens = args.max_tokens
 
-    chat = run_chat(model, num_options, temperature, full_prompt)
+    chat = run_chat(model, num_options, temperature, full_prompt, max_tokens)
     print(chat)
 
 
-def run_chat(model, num_options, temperature, full_prompt):
+def run_chat(model, num_options, temperature, full_prompt, max_tokens=1000):
 
     prompt, pre, post = focus_prompt(full_prompt)
 
@@ -227,7 +229,7 @@ def run_chat(model, num_options, temperature, full_prompt):
             messages=messages_from_prompt(prompt),
             n=num_options,
             temperature=temperature,
-
+            max_tokens=max_tokens
         ).choices]
 
         chat += prompt
