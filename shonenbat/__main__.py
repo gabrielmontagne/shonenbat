@@ -232,7 +232,7 @@ def run_chat(model, num_options, temperature, full_prompt, max_tokens=1000, offl
     try:
         results = [f'\n\nA>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
             model=model,
-            messages=messages_from_prompt(offline_preamble + prompt),
+            messages=messages_from_prompt(offline_preamble + '\n' + prompt),
             n=num_options,
             temperature=temperature,
             max_tokens=max_tokens
