@@ -67,7 +67,7 @@ def messages_from_prompt(prompt):
     return messages
 
 
-def run_completion(model, num_options, temperature, full_prompt, max_tokens=1000, instruction=None, stop=[]):
+def run_completion(model, num_options, temperature, full_prompt, max_tokens=4000, instruction=None, stop=[]):
     unescaped_stops = [i.replace('\\n', '\n') for i in stop]
 
     prompt, pre, post = focus_prompt(full_prompt)
@@ -132,7 +132,7 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('prompt', nargs='?', type=FileType(
         'r'), default=sys.stdin, help='Optionally add {{insert}} for completion')
-    parser.add_argument('--max_tokens', '-mt', type=int, default=1000)
+    parser.add_argument('--max_tokens', '-mt', type=int, default=4000)
     parser.add_argument('--num_options', '-n', type=int, default=1)
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
     parser.add_argument('--model', '-m', type=str, default='text-davinci-003')
@@ -200,7 +200,7 @@ def chat():
     parser.add_argument('prompt', nargs='?', type=FileType(
         'r'), default=sys.stdin, help='An optional preamble with context for the agent, then block sections headed by Q>> and A>>. ')
     parser.add_argument('--num_options', '-n', type=int, default=1)
-    parser.add_argument('--max_tokens', '-mt', type=int, default=1000)
+    parser.add_argument('--max_tokens', '-mt', type=int, default=4000)
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
     parser.add_argument('--model', '-m', type=str, default='gpt-3.5-turbo')
     parser.add_argument('--offline_preamble', '-op',
@@ -220,7 +220,7 @@ def chat():
     print(chat)
 
 
-def run_chat(model, num_options, temperature, full_prompt, max_tokens=1000, offline_preamble=''):
+def run_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offline_preamble=''):
 
     prompt, pre, post = focus_prompt(full_prompt)
 
