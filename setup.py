@@ -11,7 +11,8 @@ setup(
             'shonenbat = shonenbat.__main__:main',
             'shonenlist = shonenbat.__main__:list',
             'shonenimage = shonenbat.__main__:image',
-            'shonenchat = shonenbat.__main__:chat'
+            'shonenchat = shonenbat.__main__:chat',
+            'shonencount = shonenbat.__main__:count'
         ]
     }
 )
