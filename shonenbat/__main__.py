@@ -203,6 +203,7 @@ def chat():
     parser.add_argument('--max_tokens', '-mt', type=int, default=4000)
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
     parser.add_argument('--model', '-m', type=str, default='gpt-3.5-turbo')
+    parser.add_argument('--output_only', '-oo', action='store_true', help='Skip input echo.')
     parser.add_argument('--offline_preamble', '-op',
                         type=FileType('r'), default=None)
     args = parser.parse_args()
@@ -211,16 +212,17 @@ def chat():
     temperature = args.temperature
     full_prompt = args.prompt.read()
     max_tokens = args.max_tokens
+    output_only = args.output_only
 
     offline_preamble = ''
     if args.offline_preamble:
         offline_preamble = args.offline_preamble.read()
 
-    chat = run_chat(model, num_options, temperature, full_prompt, max_tokens, offline_preamble)
+    chat = run_chat(model, num_options, temperature, full_prompt, max_tokens, offline_preamble, output_only)
     print(chat)
 
 
-def run_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offline_preamble=''):
+def run_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offline_preamble='', output_only=False):
 
     prompt, pre, post = focus_prompt(full_prompt)
 
@@ -230,17 +232,27 @@ def run_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offl
         chat += pre + '\n'
 
     try:
-        results = [f'\n\nA>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
-            model=model,
-            messages=messages_from_prompt(offline_preamble + '\n' + prompt),
-            n=num_options,
-            temperature=temperature,
-            max_tokens=max_tokens
-        ).choices]
 
-        chat += prompt
-        chat += f'\n\n{"-" * 10}\n\n'.join(results)
-        chat += '\n\nQ>> '
+        if output_only:
+            results = [f'{r.message.content}' for r in openai.ChatCompletion.create(
+                model=model,
+                messages=messages_from_prompt(offline_preamble + '\n' + prompt),
+                n=num_options,
+                temperature=temperature,
+                max_tokens=max_tokens
+            ).choices]
+            chat += f'\n\n{"-" * 10}\n\n'.join(results)
+        else:
+            results = [f'\n\nA>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
+                model=model,
+                messages=messages_from_prompt(offline_preamble + '\n' + prompt),
+                n=num_options,
+                temperature=temperature,
+                max_tokens=max_tokens
+            ).choices]
+            chat += prompt
+            chat += f'\n\n{"-" * 10}\n\n'.join(results)
+            chat += '\n\nQ>> '
 
     except Exception as e:
         traceback_details = traceback.format_exc()
