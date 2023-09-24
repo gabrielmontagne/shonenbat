@@ -3,4 +3,5 @@ nose
 bumpversion
 pep8
 pylint
+tiktoken
 python-dotenv

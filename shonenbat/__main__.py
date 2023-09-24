@@ -202,7 +202,7 @@ def chat():
     parser.add_argument('--num_options', '-n', type=int, default=1)
     parser.add_argument('--max_tokens', '-mt', type=int, default=4000)
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
-    parser.add_argument('--model', '-m', type=str, default='gpt-3.5-turbo')
+    parser.add_argument('--model', '-m', type=str, default='gpt-4')
     parser.add_argument('--output_only', '-oo', action='store_true', help='Skip input echo.')
     parser.add_argument('--offline_preamble', '-op',
                         type=FileType('r'), default=None)
@@ -262,6 +262,39 @@ def run_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offl
         chat += '\n' + post
 
     return chat
+
+def run_count(model, full_prompt):
+    from tiktoken import encoding_for_model
+    prompt, pre, post = focus_prompt(full_prompt)
+
+    count = ''
+
+    if pre:
+        count += pre + '\n'
+
+    encoding = encoding_for_model(model)
+    tokens = encoding.encode(prompt)
+
+    count += f'/* {len(tokens)} tokens */'
+
+    if post:
+        count += '\n' + post
+
+    return count
+
+
+def count():
+    parser = ArgumentParser()
+    parser.add_argument('prompt', nargs='?', type=FileType(
+        'r'), default=sys.stdin, help='Text to count.')
+
+    parser.add_argument('--model', '-m', type=str, default='gpt-4')
+    args = parser.parse_args()
+
+    full_prompt = args.prompt.read()
+    model = args.model
+    count_result = run_count(model, full_prompt)
+    print(count_result)
 
 
 def list():
