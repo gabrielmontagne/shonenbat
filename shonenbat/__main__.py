@@ -263,7 +263,7 @@ def run_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offl
 
     return chat
 
-def run_count(model, full_prompt):
+def run_count(model, full_prompt, name=''):
     from tiktoken import encoding_for_model
     prompt, pre, post = focus_prompt(full_prompt)
 
@@ -275,7 +275,10 @@ def run_count(model, full_prompt):
     encoding = encoding_for_model(model)
     tokens = encoding.encode(prompt)
 
-    count += f'/* {len(tokens)} tokens */'
+    if name:
+        count += f'/* {len(tokens):>10} tokens {name} */'
+    else:
+        count += f'/* {len(tokens)} */'
 
     if post:
         count += '\n' + post
@@ -293,7 +296,9 @@ def count():
 
     full_prompt = args.prompt.read()
     model = args.model
-    count_result = run_count(model, full_prompt)
+    name = args.prompt.name
+    if name == '<stdin>': name = ''
+    count_result = run_count(model, full_prompt, name)
     print(count_result)
 
 
