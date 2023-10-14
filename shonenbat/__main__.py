@@ -24,13 +24,13 @@ def focus_prompt(prompt):
     pre = ""
     post = ""
 
-    start_split = re.split(r'^(\s*__START__\s*)$', prompt, flags=re.MULTILINE)
+    start_split = re.split(r'^(\s*__START__\s*)$', prompt, flags=re.MULTILINE, maxsplit=1)
 
     if len(start_split) == 3:
         head, separator, prompt = start_split
         pre = head + separator
 
-    end_split = re.split(r'^(\s*__END__\s*)$', prompt, flags=re.MULTILINE)
+    end_split = re.split(r'^(\s*__END__\s*)$', prompt, flags=re.MULTILINE, maxsplit=1)
 
     if len(end_split) == 3:
         prompt, separator, tail = end_split
