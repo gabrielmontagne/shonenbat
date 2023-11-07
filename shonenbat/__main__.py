@@ -60,7 +60,9 @@ def messages_from_prompt(prompt):
         messages.append(
             {
                 'role': token_to_role.get(k, 'S>>'),
-                'content': v.strip()
+                'content': [
+                    { 'type': 'text', 'text': v.strip() }
+                ]
             }
         )
 
