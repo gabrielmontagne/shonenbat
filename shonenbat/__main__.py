@@ -166,6 +166,7 @@ def image():
     parser.add_argument('--size', '-s', type=str, default='1024x1024')
     parser.add_argument('--command', '-c', type=str,
                         help='Optional command to run for each generated URL')
+    parser.add_argument('--model', '-m', type=str, default='dall-e-3')
 
     args = parser.parse_args()
 
@@ -176,6 +177,7 @@ def image():
 
     try:
         urls = [item['url'] for item in openai.Image.create(
+            model=args.model,
             prompt=prompt,
             n=args.num_options,
             size=args.size
