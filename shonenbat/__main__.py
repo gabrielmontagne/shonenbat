@@ -1,7 +1,6 @@
 from argparse import ArgumentParser, FileType
 from dotenv import load_dotenv
 from pathlib import Path
-from pprint import pprint
 import base64
 import openai
 import os
@@ -77,18 +76,10 @@ def messages_from_prompt(prompt, img_base_path):
     preamble = ''
     default_question = ''
 
-    print('PAIRS')
-    pprint(pairs)
-
     qa = [pair for pair in (zip(pairs[::2], pairs[1::2])) if pair[1]]
-
-    print('IMG BASE PATH', img_base_path)
-    print('QA')
-    pprint(qa)
 
     if not qa:
         default_question = preamble_or_default_q.strip()
-        print('DEFAULT Q!', default_question)
     else:
         preamble = preamble_or_default_q.strip()
 
@@ -112,21 +103,13 @@ def messages_from_prompt(prompt, img_base_path):
 
     for k, v in qa:
         content = segregate_images_and_text(v, img_base_path)
-        print('CONTENT')
-        pprint(content)
         messages.append(
             {
                 'role': token_to_role.get(k, 'S>>'),
-                # 'content': [ { 'type': 'text', 'text': 'what time is it now?'}]
                 'content': content
-#               [
-#                   { 'type': 'text', 'text': v.strip() }
-#               ]
             }
         )
 
-    print('MESSAGES')
-    pprint(messages)
     return messages
 
 
@@ -279,8 +262,6 @@ def chat():
     full_prompt = args.prompt.read()
     max_tokens = args.max_tokens
     output_only = args.output_only
-
-    print('CWD PATH', args.img_base_path)
 
     offline_preamble = ''
     if args.offline_preamble:
