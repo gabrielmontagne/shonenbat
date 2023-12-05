@@ -1,11 +1,13 @@
 from argparse import ArgumentParser, FileType
 from dotenv import load_dotenv
 import traceback
+import base64
 import sys
 import openai
 import os
 import subprocess
 import re
+from pprint import pprint
 
 split_token = '{{insert}}'
 
@@ -38,11 +40,47 @@ def focus_prompt(prompt):
 
     return prompt.strip(), pre, post
 
+def encode_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
+def segregate_images_and_text(multi_line_string):
+    blocks = re.split(r'(\[img\[.*?\]\])', multi_line_string)
+
+    cwd = '/home/gabriel/Documents/historia-artificial/zk/wiki/'
+
+    # Initialize an empty list to store the items
+    items = []
+
+    # Iterate over the blocks and classify them as text or image
+    for block in blocks:
+        block = block.strip()
+        if block.startswith('[img['):
+            # Extract the image path
+            rel_path = re.search(r'\[img\[(.*?)\]\]', block).group(1)
+            image_path = os.path.normpath(os.path.join(cwd, rel_path))
+            image_url = encode_image(image_path)
+            items.append(
+            {
+                'type': 'image_url', 
+                'image_url': {
+                    'url': f'data:image/png;base64,{image_url}'
+                }
+            })
+        elif block:
+            # Add text block
+            items.append({'type': 'text', 'text': block})
+
+    return items
+
 
 def messages_from_prompt(prompt):
     token = r'(?:^|\n)(\w>>)'
     preamble, *pairs = re.split(token, prompt)
     qa = [pair for pair in (zip(pairs[::2], pairs[1::2])) if pair[1]]
+
+    print('QA')
+    pprint(qa)
 
     preamble = preamble.strip()
 
@@ -57,15 +95,22 @@ def messages_from_prompt(prompt):
         )
 
     for k, v in qa:
+        content = segregate_images_and_text(v)
+        print('CONTENT')
+        pprint(content)
         messages.append(
             {
                 'role': token_to_role.get(k, 'S>>'),
-                'content': [
-                    { 'type': 'text', 'text': v.strip() }
-                ]
+                # 'content': [ { 'type': 'text', 'text': 'what time is it now?'}]
+                'content': content
+#               [
+#                   { 'type': 'text', 'text': v.strip() }
+#               ]
             }
         )
 
+    print('MESSAGES')
+    pprint(messages)
     return messages
 
 
