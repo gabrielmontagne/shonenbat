@@ -1,13 +1,14 @@
 from argparse import ArgumentParser, FileType
 from dotenv import load_dotenv
-import traceback
+from pathlib import Path
+from pprint import pprint
 import base64
-import sys
 import openai
 import os
-import subprocess
 import re
-from pprint import pprint
+import subprocess
+import sys
+import traceback
 
 split_token = '{{insert}}'
 
@@ -44,12 +45,8 @@ def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
-def segregate_images_and_text(multi_line_string):
+def segregate_images_and_text(multi_line_string, img_base_path):
     blocks = re.split(r'(\[img\[.*?\]\])', multi_line_string)
-
-    cwd = '/home/gabriel/Documents/historia-artificial/zk/wiki/'
-
-    # Initialize an empty list to store the items
     items = []
 
     # Iterate over the blocks and classify them as text or image
@@ -58,7 +55,7 @@ def segregate_images_and_text(multi_line_string):
         if block.startswith('[img['):
             # Extract the image path
             rel_path = re.search(r'\[img\[(.*?)\]\]', block).group(1)
-            image_path = os.path.normpath(os.path.join(cwd, rel_path))
+            image_path = img_base_path.joinpath(rel_path)
             image_url = encode_image(image_path)
             items.append(
             {
@@ -74,11 +71,12 @@ def segregate_images_and_text(multi_line_string):
     return items
 
 
-def messages_from_prompt(prompt):
+def messages_from_prompt(prompt, img_base_path):
     token = r'(?:^|\n)(\w>>)'
     preamble, *pairs = re.split(token, prompt)
     qa = [pair for pair in (zip(pairs[::2], pairs[1::2])) if pair[1]]
 
+    print('IMG BASE PATH', img_base_path)
     print('QA')
     pprint(qa)
 
@@ -95,7 +93,7 @@ def messages_from_prompt(prompt):
         )
 
     for k, v in qa:
-        content = segregate_images_and_text(v)
+        content = segregate_images_and_text(v, img_base_path)
         print('CONTENT')
         pprint(content)
         messages.append(
@@ -255,6 +253,7 @@ def chat():
     parser.add_argument('--output_only', '-oo', action='store_true', help='Skip input echo.')
     parser.add_argument('--offline_preamble', '-op',
                         type=FileType('r'), default=None)
+    parser.add_argument('--img_base_path', type=Path, nargs='?', default=Path.cwd())
     args = parser.parse_args()
     model = args.model
     num_options = args.num_options
@@ -263,15 +262,17 @@ def chat():
     max_tokens = args.max_tokens
     output_only = args.output_only
 
+    print('CWD PATH', args.img_base_path)
+
     offline_preamble = ''
     if args.offline_preamble:
         offline_preamble = args.offline_preamble.read()
 
-    chat = run_chat(model, num_options, temperature, full_prompt, max_tokens, offline_preamble, output_only)
+    chat = run_chat(model, num_options, temperature, full_prompt, max_tokens, offline_preamble, output_only, args.img_base_path)
     print(chat)
 
 
-def run_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offline_preamble='', output_only=False):
+def run_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offline_preamble='', output_only=False, img_base_path=None):
 
     prompt, pre, post = focus_prompt(full_prompt)
 
@@ -285,7 +286,7 @@ def run_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offl
         if output_only:
             results = [f'{r.message.content}' for r in openai.ChatCompletion.create(
                 model=model,
-                messages=messages_from_prompt(offline_preamble + '\n' + prompt),
+                messages=messages_from_prompt(offline_preamble + '\n' + prompt, img_base_path),
                 n=num_options,
                 temperature=temperature,
                 max_tokens=max_tokens
@@ -294,7 +295,7 @@ def run_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offl
         else:
             results = [f'\n\nA>>\n\n{r.message.content}' for r in openai.ChatCompletion.create(
                 model=model,
-                messages=messages_from_prompt(offline_preamble + '\n' + prompt),
+                messages=messages_from_prompt(offline_preamble + '\n' + prompt, img_base_path),
                 n=num_options,
                 temperature=temperature,
                 max_tokens=max_tokens
