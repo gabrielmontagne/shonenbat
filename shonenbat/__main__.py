@@ -204,9 +204,9 @@ def chat():
     parser.add_argument('prompt', nargs='?', type=FileType(
         'r'), default=sys.stdin, help='An optional preamble with context for the agent, then block sections headed by Q>> and A>>. ')
     parser.add_argument('--num_options', '-n', type=int, default=1)
-    parser.add_argument('--max_tokens', '-mt', type=int, default=4000)
+    parser.add_argument('--max_tokens', '-mt', type=int, default=4096)
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
-    parser.add_argument('--model', '-m', type=str, default='gpt-4')
+    parser.add_argument('--model', '-m', type=str, default='gpt-4-vision-preview')
     parser.add_argument('--output_only', '-oo', action='store_true', help='Skip input echo.')
     parser.add_argument('--offline_preamble', '-op',
                         type=FileType('r'), default=None)
@@ -295,7 +295,7 @@ def count():
     parser.add_argument('prompt', nargs='?', type=FileType(
         'r'), default=sys.stdin, help='Text to count.')
 
-    parser.add_argument('--model', '-m', type=str, default='gpt-4')
+    parser.add_argument('--model', '-m', type=str, default='gpt-4-vision-preview')
     args = parser.parse_args()
 
     full_prompt = args.prompt.read()
