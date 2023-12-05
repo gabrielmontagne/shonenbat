@@ -1,6 +1,7 @@
 from argparse import ArgumentParser, FileType
 from dotenv import load_dotenv
 from pathlib import Path
+from pprint import pprint
 import base64
 import openai
 import os
@@ -72,23 +73,47 @@ def segregate_images_and_text(multi_line_string, img_base_path):
 
 def messages_from_prompt(prompt, img_base_path):
     token = r'(?:^|\n)(\w>>)'
-    preamble, *pairs = re.split(token, prompt)
+    preamble_or_default_q, *pairs = re.split(token, prompt)
+    preamble = ''
+    default_question = ''
+
+    print('PAIRS')
+    pprint(pairs)
+
     qa = [pair for pair in (zip(pairs[::2], pairs[1::2])) if pair[1]]
 
-    preamble = preamble.strip()
+    print('IMG BASE PATH', img_base_path)
+    print('QA')
+    pprint(qa)
+
+    if not qa:
+        default_question = preamble_or_default_q.strip()
+        print('DEFAULT Q!', default_question)
+    else:
+        preamble = preamble_or_default_q.strip()
 
     messages = []
+
+    if default_question:
+        messages.append(
+            {
+                'role': 'user',
+                'content': segregate_images_and_text(default_question, img_base_path)
+            }
+        )
 
     if preamble:
         messages.append(
             {
                 'role': 'system',
-                'content': preamble
+                'content': segregate_images_and_text(preamble, img_base_path)
             }
         )
 
     for k, v in qa:
         content = segregate_images_and_text(v, img_base_path)
+        print('CONTENT')
+        pprint(content)
         messages.append(
             {
                 'role': token_to_role.get(k, 'S>>'),
@@ -99,6 +124,9 @@ def messages_from_prompt(prompt, img_base_path):
 #               ]
             }
         )
+
+    print('MESSAGES')
+    pprint(messages)
     return messages
 
 
@@ -188,6 +216,7 @@ def main():
 
     print(completion)
 
+
 def image():
     """Run image generation"""
 
@@ -250,6 +279,8 @@ def chat():
     full_prompt = args.prompt.read()
     max_tokens = args.max_tokens
     output_only = args.output_only
+
+    print('CWD PATH', args.img_base_path)
 
     offline_preamble = ''
     if args.offline_preamble:
