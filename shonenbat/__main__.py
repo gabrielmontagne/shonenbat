@@ -253,7 +253,7 @@ def chat():
     parser.add_argument('--model', '-m', type=str, default='gpt-4-vision-preview')
     parser.add_argument('--output_only', '-oo', action='store_true', help='Skip input echo.')
     parser.add_argument('--offline_preamble', '-op',
-                        type=FileType('r'), default=None)
+                        type=FileType('r'), default=None, nargs="*")
     parser.add_argument('--img_base_path', type=Path, nargs='?', default=Path.cwd())
     args = parser.parse_args()
     model = args.model
@@ -265,7 +265,8 @@ def chat():
 
     offline_preamble = ''
     if args.offline_preamble:
-        offline_preamble = args.offline_preamble.read()
+        for preamble in args.offline_preamble:
+            offline_preamble += preamble.read()
 
     chat = run_chat(model, num_options, temperature, full_prompt, max_tokens, offline_preamble, output_only, args.img_base_path)
     print(chat)
