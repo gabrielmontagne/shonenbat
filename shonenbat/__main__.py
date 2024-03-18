@@ -2,6 +2,7 @@ from argparse import ArgumentParser, FileType
 from dotenv import load_dotenv
 from pathlib import Path
 import base64
+import anthropic
 import openai
 import os
 import re
@@ -14,6 +15,8 @@ split_token = '{{insert}}'
 load_dotenv()
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
+anthropic_key = os.getenv("ANTHROPIC_API_KEY")
 
 token_to_role = {
     'Q>>': 'user',
@@ -255,7 +258,10 @@ def chat():
     parser.add_argument('--offline_preamble', '-op',
                         type=FileType('r'), default=None, nargs="*")
     parser.add_argument('--img_base_path', type=Path, nargs='?', default=Path.cwd())
+    parser.add_argument('--provider', choices=['openai', 'anthropic'], default='anthropic')
+
     args = parser.parse_args()
+
     model = args.model
     num_options = args.num_options
     temperature = args.temperature
@@ -268,11 +274,55 @@ def chat():
         for preamble in args.offline_preamble:
             offline_preamble += preamble.read()
 
-    chat = run_chat(model, num_options, temperature, full_prompt, max_tokens, offline_preamble, output_only, args.img_base_path)
+    if args.provider == 'openai':
+        chat = run_openai_chat(model, num_options, temperature, full_prompt, max_tokens, offline_preamble, output_only, args.img_base_path)
+    else:
+        chat = run_anthropic_chat(model, num_options, temperature, full_prompt, max_tokens, offline_preamble, output_only, args.img_base_path)
+
     print(chat)
 
+def run_anthropic_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offline_preamble='', output_only=False, img_base_path=None):
 
-def run_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offline_preamble='', output_only=False, img_base_path=None):
+    client = anthropic.Client(api_key=anthropic_key)
+
+    prompt, pre, post = focus_prompt(full_prompt)
+    chat = ''
+
+    if pre:
+        chat += pre + '\n'
+
+    try:
+        if output_only:
+            result = client.messages.create(
+                # model=model,
+                model='claude-3-opus-20240229',
+                messages=messages_from_prompt(offline_preamble + '\n' + prompt, img_base_path),
+                max_tokens=max_tokens
+            )   
+            chat += f'\n\n{"-" * 10}\n\n'.join([b.text for b in result.content])
+        else:
+            result = client.messages.create(
+                # model=model,
+                model='claude-3-opus-20240229',
+                messages=messages_from_prompt(offline_preamble + '\n' + prompt, img_base_path),
+                max_tokens=max_tokens
+            )
+            chat += prompt
+            chat += f'\n\n{"-" * 10}\n\n'.join([f'\n\nA>>\n\n{b.text}' for b in result.content])
+            chat += '\n\nQ>> '
+    except Exception as e:
+        traceback_details = traceback.format_exc()
+        chat += '{{', traceback_details + '}}'
+
+    if post:    
+        chat += '\n' + post
+
+    return chat
+
+
+
+
+def run_openai_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offline_preamble='', output_only=False, img_base_path=None):
 
     prompt, pre, post = focus_prompt(full_prompt)
 

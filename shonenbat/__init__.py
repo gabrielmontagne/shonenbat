@@ -1,1 +1,1 @@
-from .__main__ import run_chat, run_completion
+from .__main__ import run_openai_chat, run_completion

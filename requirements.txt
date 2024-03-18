@@ -1,3 +1,4 @@
+anthropic
 openai==0.27.8
 nose
 bumpversion
