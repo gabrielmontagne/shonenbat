@@ -275,7 +275,7 @@ def chat():
             offline_preamble += preamble.read()
 
     if args.provider == 'openai':
-        chat = run_openai_chat(model, num_options, temperature, full_prompt, max_tokens, offline_preamble, output_only, args.img_base_path)
+        chat = run_chat(model, num_options, temperature, full_prompt, max_tokens, offline_preamble, output_only, args.img_base_path)
     else:
         chat = run_anthropic_chat(model, num_options, temperature, full_prompt, max_tokens, offline_preamble, output_only, args.img_base_path)
 
@@ -291,22 +291,45 @@ def run_anthropic_chat(model, num_options, temperature, full_prompt, max_tokens=
     if pre:
         chat += pre + '\n'
 
+    messages = messages_from_prompt(offline_preamble + '\n' + prompt, img_base_path)
+
+    non_system = [m for m in messages if m['role'] != 'system']
+    system_only = [m for m in messages if m['role'] == 'system']
+
     try:
         if output_only:
-            result = client.messages.create(
-                # model=model,
+            if system_only:
+                result = client.messages.create(
+                    # model=model,
                 model='claude-3-opus-20240229',
-                messages=messages_from_prompt(offline_preamble + '\n' + prompt, img_base_path),
-                max_tokens=max_tokens
-            )   
+                messages=non_system,
+                system=system_only[0]['content'][0]['text'],
+                max_tokens=max_tokens,
+                )   
+            else:
+                result = client.messages.create(
+                    # model=model,
+                    model='claude-3-opus-20240229',
+                    messages=non_system,
+                    max_tokens=max_tokens
+                )   
             chat += f'\n\n{"-" * 10}\n\n'.join([b.text for b in result.content])
         else:
-            result = client.messages.create(
-                # model=model,
-                model='claude-3-opus-20240229',
-                messages=messages_from_prompt(offline_preamble + '\n' + prompt, img_base_path),
-                max_tokens=max_tokens
-            )
+            if system_only:
+                result = client.messages.create(
+                    # model=model,
+                    model='claude-3-opus-20240229',
+                    system=system_only[0]['content'][0]['text'],
+                    messages=non_system,
+                    max_tokens=max_tokens
+                )
+            else:
+                result = client.messages.create(
+                    # model=model,
+                    model='claude-3-opus-20240229',
+                    messages=non_system,
+                    max_tokens=max_tokens,
+                )
             chat += prompt
             chat += f'\n\n{"-" * 10}\n\n'.join([f'\n\nA>>\n\n{b.text}' for b in result.content])
             chat += '\n\nQ>> '
@@ -322,7 +345,7 @@ def run_anthropic_chat(model, num_options, temperature, full_prompt, max_tokens=
 
 
 
-def run_openai_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offline_preamble='', output_only=False, img_base_path=None):
+def run_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offline_preamble='', output_only=False, img_base_path=None):
 
     prompt, pre, post = focus_prompt(full_prompt)
 
