@@ -47,7 +47,7 @@ def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
-def segregate_images_and_text(multi_line_string, img_base_path):
+def segregate_images_and_text(multi_line_string, img_base_path, anthropic_image_shape=False):
     blocks = re.split(r'(\[img\[.*?\]\])', multi_line_string)
     items = []
 
@@ -59,13 +59,25 @@ def segregate_images_and_text(multi_line_string, img_base_path):
             rel_path = re.search(r'\[img\[(.*?)\]\]', block).group(1)
             image_path = img_base_path.joinpath(rel_path)
             image_url = encode_image(image_path)
-            items.append(
-            {
-                'type': 'image_url', 
-                'image_url': {
-                    'url': f'data:image/png;base64,{image_url}'
-                }
-            })
+            if anthropic_image_shape:
+                items.append(
+                    {
+                        'type': 'image',
+                        'source': {
+                            'type': 'base64',
+                            'media_type': 'image/png',
+                            'data': image_url
+                        # 'data': f'data:image/png;base64,{image_url}'
+                        }
+                    })
+            else:
+                items.append(
+                {
+                    'type': 'image_url', 
+                    'image_url': {
+                        'url': f'data:image/png;base64,{image_url}'
+                    }
+                })
         elif block:
             # Add text block
             items.append({'type': 'text', 'text': block})
@@ -73,7 +85,7 @@ def segregate_images_and_text(multi_line_string, img_base_path):
     return items
 
 
-def messages_from_prompt(prompt, img_base_path):
+def messages_from_prompt(prompt, img_base_path, anthropic_image_shape=False):
     token = r'(?:^|\n)(\w>>)'
     preamble_or_default_q, *pairs = re.split(token, prompt)
     preamble = ''
@@ -92,7 +104,7 @@ def messages_from_prompt(prompt, img_base_path):
         messages.append(
             {
                 'role': 'user',
-                'content': segregate_images_and_text(default_question, img_base_path)
+                'content': segregate_images_and_text(default_question, img_base_path, anthropic_image_shape)
             }
         )
 
@@ -100,12 +112,12 @@ def messages_from_prompt(prompt, img_base_path):
         messages.append(
             {
                 'role': 'system',
-                'content': segregate_images_and_text(preamble, img_base_path)
+                'content': segregate_images_and_text(preamble, img_base_path, anthropic_image_shape)
             }
         )
 
     for k, v in qa:
-        content = segregate_images_and_text(v, img_base_path)
+        content = segregate_images_and_text(v, img_base_path, anthropic_image_shape)
         messages.append(
             {
                 'role': token_to_role.get(k, 'S>>'),
@@ -291,7 +303,7 @@ def run_anthropic_chat(model, num_options, temperature, full_prompt, max_tokens=
     if pre:
         chat += pre + '\n'
 
-    messages = messages_from_prompt(offline_preamble + '\n' + prompt, img_base_path)
+    messages = messages_from_prompt(offline_preamble + '\n' + prompt, img_base_path, True)
 
     non_system = [m for m in messages if m['role'] != 'system']
     system_only = [m for m in messages if m['role'] == 'system']
