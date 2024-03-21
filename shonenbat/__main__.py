@@ -67,7 +67,6 @@ def segregate_images_and_text(multi_line_string, img_base_path, anthropic_image_
                             'type': 'base64',
                             'media_type': 'image/png',
                             'data': image_url
-                        # 'data': f'data:image/png;base64,{image_url}'
                         }
                     })
             else:
@@ -265,7 +264,7 @@ def chat():
     parser.add_argument('--num_options', '-n', type=int, default=1)
     parser.add_argument('--max_tokens', '-mt', type=int, default=4096)
     parser.add_argument('--temperature', '-t', type=float, default=0.5)
-    parser.add_argument('--model', '-m', type=str, default='gpt-4-vision-preview')
+    parser.add_argument('--model', '-m', type=str, default=None)
     parser.add_argument('--output_only', '-oo', action='store_true', help='Skip input echo.')
     parser.add_argument('--offline_preamble', '-op',
                         type=FileType('r'), default=None, nargs="*")
@@ -289,11 +288,11 @@ def chat():
     if args.provider == 'openai':
         chat = run_chat(model, num_options, temperature, full_prompt, max_tokens, offline_preamble, output_only, args.img_base_path)
     else:
-        chat = run_anthropic_chat(model, num_options, temperature, full_prompt, max_tokens, offline_preamble, output_only, args.img_base_path)
+        chat = run_anthropic_chat(model, temperature, full_prompt, max_tokens, offline_preamble, output_only, args.img_base_path)
 
     print(chat)
 
-def run_anthropic_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offline_preamble='', output_only=False, img_base_path=None):
+def run_anthropic_chat(model, temperature, full_prompt, max_tokens=4000, offline_preamble='', output_only=False, img_base_path=None):
 
     client = anthropic.Client(api_key=anthropic_key)
 
@@ -312,16 +311,17 @@ def run_anthropic_chat(model, num_options, temperature, full_prompt, max_tokens=
         if output_only:
             if system_only:
                 result = client.messages.create(
-                    # model=model,
-                model='claude-3-opus-20240229',
+                model=model or 'claude-3-opus-20240229',
                 messages=non_system,
+                temperature=temperature,
                 system=system_only[0]['content'][0]['text'],
                 max_tokens=max_tokens,
                 )   
             else:
                 result = client.messages.create(
                     # model=model,
-                    model='claude-3-opus-20240229',
+                    model=model or 'claude-3-opus-20240229',
+                    temperature=temperature,
                     messages=non_system,
                     max_tokens=max_tokens
                 )   
@@ -355,8 +355,6 @@ def run_anthropic_chat(model, num_options, temperature, full_prompt, max_tokens=
     return chat
 
 
-
-
 def run_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offline_preamble='', output_only=False, img_base_path=None):
 
     prompt, pre, post = focus_prompt(full_prompt)
@@ -370,7 +368,7 @@ def run_chat(model, num_options, temperature, full_prompt, max_tokens=4000, offl
 
         if output_only:
             results = [f'{r.message.content}' for r in openai.ChatCompletion.create(
-                model=model,
+                model=model or 'gpt-4-vision-preview',
                 messages=messages_from_prompt(offline_preamble + '\n' + prompt, img_base_path),
                 n=num_options,
                 temperature=temperature,
